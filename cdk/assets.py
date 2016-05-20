@@ -1,9 +1,9 @@
 from clld.web.assets import environment
-from path import path
+from clldutils.path import Path
 
 import cdk
 
 
 environment.append_path(
-    path(cdk.__file__).dirname().joinpath('static'), url='/cdk:static/')
+    Path(cdk.__file__).parent.joinpath('static').as_posix(), url='/cdk:static/')
 environment.load_path = list(reversed(environment.load_path))
