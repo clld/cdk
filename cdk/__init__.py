@@ -4,6 +4,13 @@ from pyramid.config import Configurator
 from cdk import models
 
 
+_ = lambda s: s
+_('Unitvalue')
+_('Unitvalues')
+_('Sentence')
+_('Sentences')
+
+
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """

@@ -8,5 +8,5 @@ class Tests(TestWithApp):
     __cfg__ = Path(cdk.__file__).parent.joinpath('..', 'development.ini').resolve()
     __setup_db__ = False
 
-    def test_home(self):
+    def est_home(self):
         res = self.app.get('/', status=200)
