@@ -120,6 +120,33 @@ class HeadwordTests(TestCase):
             "imb. àl da-quska da-qimn sɛtɔŋna  а там в чуме его жены узнали (КСб: 181)"
         l = list(yield_examples(s))
 
+        s = "kur. āb anun  мой ум, " \
+            "sul. anunan kʌjga  бестолковая без ума] голова, " \
+            "sur. budaŋtan anunaŋ bʌntʲaŋ  у него разума нет, " \
+            "pak. abaŋta aqta anun  у меня хороший ум, " \
+            "sur. āt (t)bilʲεbεt bindεp anundasʲ  я сделал своим умом, " \
+            "kel. anunan kεˀt – dajεŋ kεˀt  безумец [без ума человек] – больной человек, " \
+            "kel. ūk kʌjga anun u bʌnsʲaŋ  у тебя в голове ум есть или нет, " \
+            "kel. anunan kεtdiŋta dɨlʲgat daʁalεjin  над безумцем потешались смеялись] дети, " \
+            "kel. qɔˀk kεdda anundiŋa turʲɛ bǝ̄nʲ da-íksʲibεsʲ  одному человеку это на ум не придёт, " \
+            "kur. āb anundasʲ  по моему мнению, " \
+            "bak. bǝ̄nʲ āb anundas  не по своей воле  " \
+            "ver. anun dʌkájnɛm  она взялась за ум (КФТ: 63), " \
+            "asʲka qaɣεt datɔnɔq, anun daŋta bʌnʲsʲa ɔbɨlʲda  когда старым стал, ума у него не стало (КФТ: 29)"
+        l = list(yield_examples(s))
+        self.assertEqual(len(l), 13)
+
+        s = "kur. būŋ hʌnʲunʲaŋ  они маленькие,  " \
+            "buŋnaŋa ɔnʲa sʲɨkŋ?  им сколько лет?  " \
+            "būŋ “ʌtna nʲɛmsʲaŋ” ɔvɨlʲdɛn  они «нашими немцами» были (ПМБ: 252), " \
+            "sʲulʲtu kàlʲ ēnʲ ɔvɨlʲdɛ  была теперь кровавая война (ПМБ: 254), " \
+            "buttɔ būŋ bɛˀk bʌnʲsʲaŋ sʲɛ́ɛ̀ŋ  будто они здесь никогда не были (ПМБ: 261), " \
+            "būŋ ɛk lʲʌʁɛsʲaŋ dimbɛsʲin, ʌtna qɔkŋdiŋ dimbɛsʲin tunʲɛ súran-qáŋnʲiŋ-dɛˀŋ  они пришли лишь за пушниной, в бор наш они пришли эти люди полуденных гор (ПМБ: 213), " \
+            "qájɛ qálnas qíbdaŋta ʌtna dɛˀŋ dimbɛsʲin qúkdiŋ, járɔmkadiŋ būŋ dimbɛsʲin  потом в месяце сбора налога [июне] наши люди пришли на Енисей, на ярмарку они пришли (ПМБ: 214), " \
+            "diˑmbɛsʲin sʲēlʲ dʌqdiŋ būŋ, diˑmbɛsʲin bənʲ áqta qá:nʲdiŋ  пришли к непристойной жизни, пришли к нехорошим словам (ПМБ: 215)"
+        l = list(yield_examples(s))
+        self.assertEqual(len(l), 8)
+
     def test_variants(self):
         l = list(yield_variants('sket.'))
         self.assertEqual(l, [('sket', None)])

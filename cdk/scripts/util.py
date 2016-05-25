@@ -2,7 +2,8 @@
 from __future__ import unicode_literals, print_function, division
 import re
 from collections import defaultdict
-from itertools import groupby
+from itertools import groupby, chain
+import io
 
 from clld.db.meta import DBSession
 from clld.db.models import common
@@ -47,7 +48,7 @@ POS = {
     'pron inter': 'interrogative pronoun',
     'pron inter f': 'feminine interrogative pronoun',
     'pron inter m': 'masculine interrogative pronoun',
-    'pron intens/refl': 'intens/refl pronoun',
+    'pron intens/refl': 'intensive/reflexive pronoun',
     'pron pers': 'personal pronoun',
     'pron poss': 'possesive pronoun',
     'pron rel': 'relative pronoun',
@@ -68,13 +69,13 @@ POS = {
     'v5': 'v5 - intransitive verb',
     'vk': 'verb with incorporated subjects',
     'vpred': 'verbal predicate',
-    'vt': 'tranbsitive verb',
-    'vt irr': 'irregular tranbsitive verb',
-    'vt1': 'vt1 - tranbsitive verb',
-    'vt2': 'vt2 - tranbsitive verb',
-    'vt2/4': 'vt2/4 - tranbsitive verb',
-    'vt3': 'vt3 - tranbsitive verb',
-    'vt4': 'vt4 - tranbsitive verb',
+    'vt': 'transitive verb',
+    'vt irr': 'irregular transitive verb',
+    'vt1': 'vt1 - transitive verb',
+    'vt2': 'vt2 - transitive verb',
+    'vt2/4': 'vt2/4 - transitive verb',
+    'vt3': 'vt3 - transitive verb',
+    'vt4': 'vt4 - transitive verb',
 }
 
 ASPECTS = {
@@ -104,7 +105,7 @@ LOCATIONS = {
     'baikh': 'Baikha',
     'baikn': 'Baikha',
     'baix': 'Baikha',
-    'bajk': 'Baikit',
+    'bajk': 'Bajkit',
     'bakht': 'Bakhta',
     'bakh': 'Bakhta',
     'baxt': 'Bakhta',
@@ -113,15 +114,15 @@ LOCATIONS = {
     'e.-o': 'Yenisei Ostyak',
     'kel': 'Kellog',
     'ke': 'Kellog',
-    'kur': 'Kureika',
-    'mad': 'Maduika',
+    'kur': 'Kurejka',
+    'mad': 'Madujka',
     'pak': 'Pakulikha',
     'al': 'Alinskoe',
     '\u0430l': 'Alinskoe',
-    'ak': 'Alinskoe',
+    'ak': 'Baklanikha',
     'ver': 'Vereshchagino',
     'v-imb': 'Verkhne-Imbatsk',
-    'sul': 'Sulomai',
+    'sul': 'Sulomaj',
     'sum': 'Sumarokovo',
     'sur': 'Surgutikha',
 }
@@ -142,10 +143,12 @@ DIALECT_MARKER_PATTERN = re.compile('(?P<name>ket|%s)(\.\s*|\.?\s+)' % '|'.join(
 
 DIALECT_CHUNK_PATTERN = re.compile(',\s*(?:%s)\.\s*' % '|'.join(DIALECTS.keys()))
 
-LOC_PATTERN = re.compile('(?:(?:\]|\?|,|\s\s)\s*|^)(%s)\.\s+' % '|'.join(string2regex(s) for s in LOCATIONS.keys()))
+LOC_PATTERN = re.compile('(?:(?:\]|\?|,|\s\s)\s*|^)(%s)\.\s+' %
+                         '|'.join(string2regex(s)
+                                  for s in chain(LOCATIONS.keys(), DIALECTS.keys())))
 
 SOURCE_PATTERN = re.compile('\s*\((?P<src>[^:\(\)]+):\s*(?P<pages>[^\)]+)(?:\)\s*$|\),?\s*)')
-SOURCE_MARKER = re.compile('\s*\((?P<src>[^:\(\)]+):\s*(?P<pages>[^\)]+)\)$')
+SOURCE_MARKER = re.compile('\s*\((?P<src>[^:\(\)]+):\s*(?P<pages>[^\)]+)\),?\s*')
 
 MEANING_ID = 0
 ENTRY_ID = 0
@@ -183,11 +186,7 @@ def yield_variants(s):
         else:
             # additional form for the last encountered dialect!
             form = chunk
-            try:
-                assert prev_dialects and form
-            except:
-                print(s)
-                raise
+            assert prev_dialects and form
             for dialect in prev_dialects:
                 yield dialect, form
     for dialect in dialects:
@@ -237,11 +236,6 @@ class Headword(object):
 def yield_examples(s):
     chunks = [ss.strip() for ss in LOC_PATTERN.split(s)]
     if chunks[0]:
-        #try:
-        #    assert len(chunks) == 1
-        #except AssertionError:
-        #    print(chunks[0])
-        #    raise
         for res in yield_cited_examples(chunks[0]):
             yield res
 
@@ -250,39 +244,52 @@ def yield_examples(s):
     for i, (dialect, chunk) in enumerate(local_examples):
         parts = chunk.split('  ', 2)
         if len(parts) == 1:
-            PROBLEMS.append(1)
+            PROBLEMS.append(s)
             parts.append('')
 
         src_match = SOURCE_MARKER.search(parts[1])
         if src_match:
             src, pages = src_match.group('src'), src_match.group('pages')
             rus = parts[1][:src_match.start()]
+            if parts[1][src_match.end():].strip():
+                parts.insert(2, parts[1][src_match.end():].strip())
         else:
             src, pages = None, None
             rus = parts[1]
         yield dialect, parts[0], rus, src, pages
         if len(parts) > 2:
-            for res in yield_cited_examples(parts[2]):
+            for res in yield_cited_examples('  '.join(parts[2:])):
                 yield res
 
 
 def yield_cited_examples(s):
+    done = False
     chunks = [ss.strip() for ss in SOURCE_PATTERN.split(s)]
-    count, rem = divmod(len(chunks), 3)
-    try:
-        assert rem == 1 and not chunks[-1]
-    except AssertionError:
-        PROBLEMS.append(1)
-        yield None, chunks[-1], None, None, None
+    if len(chunks) == 1:
+        cchunks = chunks[0].split('  ')
+        if len(cchunks) == 2:
+            yield None, cchunks[0], cchunks[1], None, None
+            done = True
 
-    for chunk, src, pages in [chunks[i:i + 3] for i in range(0, count * 3, 3)]:
-        parts = chunk.split('  ')
+    if not done:
+        count, rem = divmod(len(chunks), 3)
         try:
-            assert len(parts) == 2
-            yield None, parts[0], parts[1], src, pages
+            assert rem == 1 and not chunks[-1]
         except AssertionError:
-            PROBLEMS.append(1)
-            yield None, '  '.join(parts), None, src, pages
+            PROBLEMS.append(s)
+            yield None, chunks[-1], None, None, None
+
+        for chunk, src, pages in [chunks[i:i + 3] for i in range(0, count * 3, 3)]:
+            parts = chunk.split('  ')
+            if len(parts) == 4:
+                yield None, parts[0], parts[1], None, None
+                parts = parts[2:]
+            try:
+                assert len(parts) == 2
+                yield None, parts[0], parts[1], src, pages
+            except AssertionError:
+                PROBLEMS.append(s)
+                yield None, '  '.join(parts), None, src, pages
 
 
 def get_entry(**kw):
@@ -312,45 +319,31 @@ def load(data, reader, ket, contrib, verbs=True):
 
         headword = Headword(headword)
         entries = []
+        kw = dict(
+            donor=headword.donor,
+            disambiguation=headword.disambiguation,
+            pos=pos,
+            aspect=aspect_or_plural if verbs else None,
+            plural=None if verbs else aspect_or_plural,)
 
         if headword.dialects:
             for dialect in headword.dialects:
                 entries.append(get_entry(
                     name=headword.form,
-                    donor=headword.donor,
-                    disambiguation=headword.disambiguation,
-                    pos=pos,
-                    aspect=aspect_or_plural if verbs else None,
-                    plural=None if verbs else aspect_or_plural,
-                    language=data['Language'][dialect]))
+                    language=data['Language'][dialect],
+                    **kw))
         else:
-            entries.append(get_entry(
-                name=headword.form,
-                donor=headword.donor,
-                disambiguation=headword.disambiguation,
-                pos=pos,
-                aspect=aspect_or_plural if verbs else None,
-                plural=None if verbs else aspect_or_plural,
-                language=ket))
+            entries.append(get_entry(name=headword.form, language=ket, **kw))
 
         for dialect, forms in headword.variants.items():
             for form in forms:
                 entries.append(get_entry(
                     name=form,
-                    donor=headword.donor,
-                    disambiguation=headword.disambiguation,
-                    pos=pos,
-                    aspect=aspect_or_plural if verbs else None,
-                    plural=None if verbs else aspect_or_plural,
-                    language=ket if dialect is None else data['Language'][dialect]))
+                    language=ket if dialect is None else data['Language'][dialect],
+                    **kw))
 
         for j, row in enumerate(meanings):
-            try:
-                headword, pos, aspect, russian, german, english, description = row
-            except:
-                for l, col in enumerate(row):
-                    print(l, col)
-                raise
+            headword, pos, aspect, russian, german, english, description = row
             match = dis_arabic_pattern.match(russian)
             if match:
                 russian = russian[match.end():].strip()
@@ -365,8 +358,6 @@ def load(data, reader, ket, contrib, verbs=True):
                     russian=russian,
                     german=german,
                     english=english)
-            #else:
-            #    print('known meaning: %s, %s, %s' % (russian, german, english))
 
             for entry in entries:
                 counterpart = common.UnitValue(
@@ -377,25 +368,15 @@ def load(data, reader, ket, contrib, verbs=True):
                     unit=entry,
                     unitparameter=meaning)
 
-                #try:
-                #    examples = list(yield_examples(description))
-                #except:
-                #    print(description)
-                #    raise
-
                 for k, (loc, text, rus, source, pages) in enumerate(yield_examples(description)):
-                    #if dialect == 'ket':
-                    #    dialect = None
-                    #rus = ''
-                    #if '  ' in text:
-                    #    text, rus = text.split('  ', 1)
-
-                    example = data['Sentence'].get((text, rus))
+                    example = data['Sentence'].get((text, rus, loc))
                     if example is None:
                         EXAMPLE_ID += 1
-                        example = common.Sentence(
+                        example = data.add(
+                            common.Sentence,
+                            (text, rus, loc),
                             id='%s' % EXAMPLE_ID,
-                            language=ket,  # if dialect is None else data['Language'][dialect],
+                            language=data['Language'].get(loc, ket),
                             name=text,
                             description=rus)
                         if source:
@@ -410,13 +391,12 @@ def load(data, reader, ket, contrib, verbs=True):
                             DBSession.add(common.SentenceReference(
                                 sentence=example, source=src, description=pages))
                     models.CounterpartExample(
-                        location=LOCATIONS[loc] if loc else None,
+                        location=LOCATIONS.get(loc, DIALECTS.get(loc)),
                         counterpart=counterpart,
                         sentence=example)
 
-                    #
-                    # FIXME: handle references!
-                    #
-
         for entry in entries:
             DBSession.add(entry)
+
+        with io.open('context-problems.txt', 'w', encoding='utf8') as fp:
+            fp.write('\n\n'.join(PROBLEMS))
