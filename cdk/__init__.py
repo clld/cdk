@@ -7,6 +7,7 @@ from cdk import models
 _ = lambda s: s
 _('Unitvalue')
 _('Unitvalues')
+_('Unit Values')
 _('Sentence')
 _('Sentences')
 

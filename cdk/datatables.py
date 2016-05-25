@@ -1,16 +1,58 @@
 from sqlalchemy.orm import joinedload, joinedload_all
-from markupsafe import Markup
 
 from clld.web.datatables.base import Col, LinkCol, DetailsRowLinkCol
 from clld.web.datatables.unit import Units
 from clld.web.datatables.unitvalue import Unitvalues
+from clld.web.datatables.sentence import Sentences
 from clld.db.meta import DBSession
 from clld.db.models import common
 from clld.db.util import get_distinct_values
+from clld.web.util.helpers import link
 from clld.web.util.htmllib import HTML
 
-from cdk.models import Entry, Meaning
+from cdk.models import Entry, Meaning, CounterpartExample
 from cdk import util
+
+
+class RefsCol(Col):
+    def search(self, qs):
+        return common.Source.name == qs
+
+    def order(self):
+        return common.Source.name
+
+    def format(self, item):
+        return HTML.ul(*[HTML.li(link(self.dt.req, ref.source), ': ', ref.description) for ref in item.references], class_='unstyled')
+
+
+class LocationCol(Col):
+    def search(self, qs):
+        return CounterpartExample.location == qs
+
+    def order(self):
+        return CounterpartExample.location
+
+    def format(self, item):
+        return HTML.ul(*[HTML.li(ex.location) for ex in item.examples], class_='unstyled')
+
+
+class Examples(Sentences):
+    def base_query(self, query):
+        query = query.outerjoin(common.Sentence.examples)
+        query = query.outerjoin(common.Sentence.references, common.Source)
+        query = query.options(
+            joinedload(common.Sentence.examples),
+            joinedload_all(common.Sentence.references, common.SentenceReference.source))
+        return query.distinct()
+
+    def col_defs(self):
+        res = Sentences.col_defs(self)
+        return [
+            res[1],
+            res[4],
+            LocationCol(self, 'settlement', choices=get_distinct_values(CounterpartExample.location)),
+            RefsCol(self, 'source', choices=get_distinct_values(common.Source.name)),
+            res[6]]
 
 
 class WordCol(LinkCol):
@@ -103,4 +145,5 @@ class Counterparts(Unitvalues):
 
 def includeme(config):
     config.register_datatable('unitvalues', Counterparts)
+    config.register_datatable('sentences', Examples)
     config.register_datatable('units', Entries)

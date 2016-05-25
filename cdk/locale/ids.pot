@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cdk 0.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-05-23 22:24+0200\n"
+"POT-Creation-Date: 2016-05-25 22:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,10 +26,14 @@ msgid "Unitvalues"
 msgstr ""
 
 #: cdk/__init__.py:10
-msgid "Sentence"
+msgid "Unit Values"
 msgstr ""
 
 #: cdk/__init__.py:11
+msgid "Sentence"
+msgstr ""
+
+#: cdk/__init__.py:12
 msgid "Sentences"
 msgstr ""
 

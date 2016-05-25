@@ -1,6 +1,6 @@
 <%inherit file="../${context.get('request').registry.settings.get('clld.app_template', 'app.mako')}"/>
 <%namespace name="util" file="../util.mako"/>
-<%! active_menu_item = "unitparameters" %>
+<%! active_menu_item = "unitvalues" %>
 
 <h2>${u.form(ctx.name)} <sup>${ctx.disambiguation}</sup></h2>
 
@@ -10,7 +10,7 @@
 <ol>
     % for counterpart in ctx.unitvalues:
     <li>
-        <strong>${counterpart.unitparameter.name}</strong>
+        <strong>${counterpart.unitparameter.name} / ${counterpart.unitparameter.russian}</strong>
         <dl>
 % for loc, examples in u.examples_by_location(counterpart):
     <dt>${loc or 'other'}</dt>
