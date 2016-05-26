@@ -2,13 +2,31 @@
 from __future__ import unicode_literals, print_function, division
 import re
 from collections import defaultdict
-from itertools import groupby, chain
+from itertools import groupby, chain, combinations
 import io
 
 from clld.db.meta import DBSession
 from clld.db.models import common
 
 from cdk import models
+
+
+SOURCE_MAP = {
+    'WΕR2': 'WER2',
+    'CHCC81': 'СНСС81',
+    'СНCC81': 'СНСС81',
+    'МКД': 'МКД1',
+    'CHCC76': 'СНСС76',
+    'WΕR1': 'WER1',
+    'СНСC72': 'СНСС72',
+    'CНCC72': 'СНСС72',
+    'CHCC72': 'СНСС72',
+    'КС': 'КСД',
+    'АК60': 'ЛЯНС11',
+    'K67': 'К67',
+    'КТФ': 'КФТ',
+    'КСб13': 'КСб',
+}
 
 
 POS = {
@@ -143,12 +161,12 @@ DIALECT_MARKER_PATTERN = re.compile('(?P<name>ket|%s)(\.\s*|\.?\s+)' % '|'.join(
 
 DIALECT_CHUNK_PATTERN = re.compile(',\s*(?:%s)\.\s*' % '|'.join(DIALECTS.keys()))
 
-LOC_PATTERN = re.compile('(?:(?:\]|\?|,|\s\s)\s*|^)(%s)\.\s+' %
+LOC_PATTERN = re.compile('(?:(?:\]|\?|!|,|\s\s)\s*|^)(%s)\.,?\s+' %
                          '|'.join(string2regex(s)
                                   for s in chain(LOCATIONS.keys(), DIALECTS.keys())))
 
-SOURCE_PATTERN = re.compile('\s*\((?P<src>[^:\(\)]+):\s*(?P<pages>[^\)]+)(?:\)\s*$|\),?\s*)')
-SOURCE_MARKER = re.compile('\s*\((?P<src>[^:\(\)]+):\s*(?P<pages>[^\)]+)\),?\s*')
+SOURCE_PATTERN = re.compile('\s*\((?P<src>[^:\s\(\)]+):\s*(?P<pages>[^\)]+)(?:\)\s*$|\),?\s*)')
+SOURCE_MARKER = re.compile('\s*\((?P<src>[^:\s\(\)]+):\s*(?P<pages>[^\)]+)\),?\s*')
 
 MEANING_ID = 0
 ENTRY_ID = 0
@@ -256,7 +274,12 @@ def yield_examples(s):
         else:
             src, pages = None, None
             rus = parts[1]
-        yield dialect, parts[0], rus, src, pages
+        text = parts[0]
+        match = DIALECT_MARKER_PATTERN.match(text)
+        if match:
+            text = text[match.end():].strip()
+            yield match.group('name'), text, rus, src, pages
+        yield dialect, text, rus, src, pages
         if len(parts) > 2:
             for res in yield_cited_examples('  '.join(parts[2:])):
                 yield res
@@ -267,8 +290,9 @@ def yield_cited_examples(s):
     chunks = [ss.strip() for ss in SOURCE_PATTERN.split(s)]
     if len(chunks) == 1:
         cchunks = chunks[0].split('  ')
-        if len(cchunks) == 2:
-            yield None, cchunks[0], cchunks[1], None, None
+        if len(cchunks) % 2 == 0:
+            for text, rus in [cchunks[i:i + 2] for i in range(0, len(cchunks), 2)]:
+                yield None, text, rus, None, None
             done = True
 
     if not done:
@@ -342,6 +366,10 @@ def load(data, reader, ket, contrib, verbs=True):
                     language=ket if dialect is None else data['Language'][dialect],
                     **kw))
 
+        DBSession.flush()
+        for e1, e2 in combinations(entries, 2):
+            DBSession.add(models.Variants(entry1=e1, entry2=e2))
+
         for j, row in enumerate(meanings):
             headword, pos, aspect, russian, german, english, description = row
             match = dis_arabic_pattern.match(russian)
@@ -380,8 +408,11 @@ def load(data, reader, ket, contrib, verbs=True):
                             name=text,
                             description=rus)
                         if source:
+                            source = SOURCE_MAP.get(source, source)
                             src = data['Source'].get(source)
                             if not src:
+                                print(source)
+                                raise ValueError(source)
                                 SOURCE_ID += 1
                                 src = data.add(
                                     common.Source, source,

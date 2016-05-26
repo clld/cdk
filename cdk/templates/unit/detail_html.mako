@@ -2,6 +2,30 @@
 <%namespace name="util" file="../util.mako"/>
 <%! active_menu_item = "unitvalues" %>
 
+<%def name="sidebar()">
+    <div class="well">
+        <h4>Language</h4>
+        <p>
+            ${h.link(request, ctx.language)}
+        </p>
+        % if ctx.variants:
+            <h4>Variants</h4>
+            <dl>
+                % for lang, vars in ctx.variants:
+                    <dt>${lang}</dt>
+                    <dd>
+                        <ul>
+                            % for var in vars:
+                                <li>${h.link(request, var)}</li>
+                            % endfor
+                        </ul>
+                    </dd>
+                % endfor
+            </dl>
+        % endif
+    </div>
+</%def>
+
 <h2>${u.form(ctx.name)} <sup>${ctx.disambiguation}</sup></h2>
 
 <p>

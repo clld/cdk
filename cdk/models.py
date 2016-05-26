@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from zope.interface import implementer
 from sqlalchemy import (
     Column,
@@ -42,6 +44,23 @@ class Entry(CustomModelMixin, Unit):
     variant = Column(Boolean, default=False)
     aspect = Column(Unicode)
     plural = Column(Unicode)
+
+    @property
+    def variants(self):
+        res = []
+        vars = [v.entry2 for v in self.variants1] + [v.entry1 for v in self.variants2]
+        for lang, vars in groupby(
+                sorted(vars, key=lambda v: v.language.name), lambda v: v.language.name):
+            res.append((lang, list(vars)))
+        return res
+
+
+class Variants(Base):
+    entry1_pk = Column(Integer, ForeignKey('unit.pk'))
+    entry2_pk = Column(Integer, ForeignKey('unit.pk'))
+
+    entry1 = relationship(Entry, foreign_keys=[entry1_pk], backref='variants1')
+    entry2 = relationship(Entry, foreign_keys=[entry2_pk], backref='variants2')
 
 
 @implementer(interfaces.IUnitParameter)

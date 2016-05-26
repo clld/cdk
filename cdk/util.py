@@ -5,7 +5,14 @@ from itertools import groupby
 
 from markupsafe import Markup
 
+from clld.web.util.helpers import get_referents
+
 DIGIT = re.compile('(?P<digit>\d)')
+
+
+def source_detail_html(context=None, request=None, **kw):
+    return dict(
+        referents=get_referents(context, exclude=['contribution', 'valueset', 'language']))
 
 
 def examples_by_location(counterpart):

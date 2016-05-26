@@ -1,3 +1,4 @@
+# coding: utf8
 from __future__ import unicode_literals
 import sys
 
@@ -45,6 +46,22 @@ def main(args):
     add_language_codes(data, ket, 'ket', glottocode='kett1243')
     for abbr, name in DIALECTS.items():
         data.add(common.Language, abbr, id=abbr, name=name)
+
+    with args.data_file('sources.txt').open(encoding='utf8') as fp:
+        for i, chunk in enumerate(fp.read().split('\n\n\n')):
+            try:
+                id_, year, author, desc = chunk.split('\n')
+            except:
+                print(chunk)
+                raise
+            data.add(
+                common.Source,
+                id_,
+                id=str(i + 1),
+                name=id_,
+                author=author,
+                year=year,
+                description=desc)
 
     with UnicodeReader(args.data_file('Ket_nouns_and_other_pos_table.docx.csv')) as reader:
         load(data, reader, ket, contrib, verbs=False)

@@ -147,6 +147,83 @@ class HeadwordTests(TestCase):
         l = list(yield_examples(s))
         self.assertEqual(len(l), 8)
 
+        s = "dūɣ dɨ̄lʲ  кричащий ребёнок,  " \
+            "dūɣ tʲīpʲ  лающая собака, " \
+            "kel. qusʲd hɨjga dūɣ dɛˀŋ duɣan  в чуме шумные [кричащие] люди сидят, " \
+            "kel. kirʲ dūɣ kɛˀt ʌɣa t-kaujak  этот шумный [кричащий] человек сюда зашёл, " \
+            "kel. tūrʲ asɛsʲ dɨ̄lʲ, dɨ̄lʲ duɣsʲ  это какой ребёнок, это ребёнок шумный"
+        l = list(yield_examples(s))
+        self.assertEqual(len(l), 5)
+
+        s = "sur. bū tɔˀn d-buŋsɔʁɔ, ɛta qɔrʲa ɨ̄n saːlaŋ dugdɛ bə̄nʲ bīn tɔːlɔʁut  он так выглядит, как будто две ночи подряд не спал,  " \
+            "kinij tɔˀn ā ɛta qɔrʲa sʲīl  сегодня такая жара как будто летом, " \
+            "mad. bū ra-ɛsʲɔlɛj, ɛta qɔrʲa ə̄t ɔgdɛnan  она кричала, как будто мы глухие [без ушей], " \
+            "mad. ū ɛta qɔrʲa bīn bə̄nʲ itkum  ты как будто сам не знаешь, " \
+            "mad. ɛta qɔrʲa āt itparɛm turʲɛ bɛsʲa ɔbɨlda  кажется, я знаю это кто был, " \
+            "bak. iˀlʲ qɔda kɛtda hū  песня как будто человека сердце, " \
+            "bak. tɔˀn aqta dubil, qɔda kɛˀt dahudil da-kásɔnam  так хорошо поёт, как будто человека за его сердце берёт"
+        l = list(yield_examples(s))
+        self.assertEqual(len(l), 7)
+
+        s = "sul. iŋɔlt qusʲam  шкура одна, " \
+            "kur. ulʲtu iŋɔlt  сырая шкура, " \
+            "mad. tū iŋɔlʲta  несушёная шкура, " \
+            "kur. dàŋ iŋɔlt  выделанная [мятая] шкура, " \
+            "kur. hʌlat iŋɔlt  замша [ровдужная шкура], " \
+            "kur. saqda iŋɔlʲt  шкура белки-самца, " \
+            "mad. ɔ̀nʲ saːnna iŋɔlʲtɛŋ  много шкур белок, " \
+            "kur. sεlεda iŋɔlʲt  оленья шкура, " \
+            "kur. kusna iŋɔltɛŋ  коровьи шкуры, " \
+            "kur. sʲīlʲ ɔllasda iŋɔltə  пыжик [шкура летнего (новорождённого) телёнка], " \
+            "kur. sʲεlʲda bulʲaŋd iŋɔlt  камус [шкура с ног оленя], " \
+            "sur. kulʲapda iŋɔlt  шкура горностая, " \
+            "kel. tiɣda iŋɔlʲt  змеиная шкура, " \
+            "pak. āt kunda iŋɔlt dʲεpqɔlʲdɔnʲ  я росомахи шкуру снял, " \
+            "sur. aʲvaŋta kiˀ iŋɔltə bʌnʲsʲaŋ  у меня новой пушнины [звериных шкур] нет, " \
+            "kel. ēnʲ kə̄t assanɔ kεˀt assεnna iŋɔltaŋ qɔmat diɣunbεsʲ  этой зимой охотник пушнины [звериных шкур] принёс мало " \
+            "kel. qima sεlʲda iŋɔlʲt dʌvrʲaŋ  бабушка мнёт оленью шкуру, " \
+            "sul. ʌlʲd iŋɔlt irʲiŋuksʲat  у лягушки шкура узорчатая, " \
+            "sul. iŋɔlt(d) ʌːta āt ditaʁut  я сплю на шкуре"
+        l = list(yield_examples(s))
+        self.assertEqual(len(l), 19)
+
+        s = "mad. turʲɛ kɛˀt qɔnɔksʲ dʌqta ra-tasʲiŋavɛt  вот этот человек (женщина) утром рано [быстро] встаёт, " \
+            "kel. tūrʲ kɛˀt āb ōp  этот человек мой отец, " \
+            "mad. turʲɛ dɨ̄lʲ bə̄nʲ āb hɨˀp  этот ребёнок не мой сын, " \
+            "mad. turʲɛ kɛrʲa lə̄q  этого человека пушнина, " \
+            "bak. ū baˀt tudɛ bə̄nʲ (k)tɔbinʲgij  ты правда это не говорил, " \
+            "mad. turɛdiŋa ōksʲ hʌninsʲa ɔvílda  у этого (капкана) палка маленькая была, " \
+            "mad. tūrʲɔ qɔtá najarij  вот он [тот] впереди шевелится, " \
+            "kel. turʲɛ bə̄nʲ ʌtna kuˀsʲ  это не наша корова, " \
+            "kel. turʲɛ aksʲ tunbisʲ? – qīmd súùlʲ, tū sʲuːʲlʲd ʌ́ʌ̀t qimn (t)tɔlʲaŋɢɔtin  это что такое? – женская нарта, на такой нарте женщины ездят, " \
+            "kel. tū bitsʲɛ?  это кто (о мужчине)? " \
+            "kel. tū tɔˀn tɨŋalʲam  вот настолько высоко, " \
+            "kel. turʲɛ tavut, ūk ɨlʲɣa, bə̄nʲ kutɔŋ  это лежит, возле тебя, не видишь, " \
+            "kel. tunɛ dɛˀŋ inʲam dɔlʲdɛɣin  эти люди давно жили, " \
+            "kel. tunɛ dɛˀŋ utisʲ dɛˀŋ  эти люди родственники, " \
+            "kel. tū kʌnʲdaŋ dεˀŋ dεˀŋ (d)pɔsɔbarɔŋɔbεtin  эти добрые люди людям помогают, " \
+            "kel. hɨlʲ turɔ́  вон он! " \
+            "kel. hɨlʲ tunɛ dɛˀŋ araŋɔt  эти вот люди болеют  " \
+            "sur. tuda īsʲ nado toʁajaŋɢat  эту рыбу сушить надо (ЛЯНС41: 250), " \
+            "pak. usʲka diːnbɛs, (d)buŋsɔʁɔ – tudʌ buŋna kaˀt baŋŋusʲ hapta, tudʌ kaˀt sɨˀk  домой (он) пришёл, смотрит – это их старая землянка стоит, это старое корыто (КФТ: 19)"
+        l = list(yield_examples(s))
+        #for ll in l:
+        #    print('%s %s %s %s %s' % tuple(ll))
+        self.assertEqual(len(l), 19)
+
+        s = "danʲáptɛt  я строгаю это,  danʲabílʲtɛt  я строгал это "
+        l = list(yield_examples(s))
+        self.assertEqual(len(l), 2)
+
+        s = "kel. qīp thitlut iʁɔt dahɔ́lɛtɛsʲ  месяц сел, солнце встало  " \
+            "sket. qīp thitsut [thitsuʁut]  луна заходит (WER1: 317), " \
+            "cket., nket. thɛtsɔʁɔt  он заходит (1b : 28) (WER1: 317), " \
+            "sket. ī dahitsut [dahitsuʁut]  солнце заходит (WER1: 317), " \
+            "cket., nket. dahɛ́tsɔʁɔt она заходит (WER1: 317), " \
+            "diˑmbɛsʲin bīk dɛˀŋ hāj biksʲa, itlʲan baŋdiŋalʲ dimbɛsʲin, ī dahítsut baŋdiŋalʲ  пришли чужие люди снова, из неведомой страны пришли, из страны, в которой солнце заходит (ПМБ: 214)"
+        l = list(yield_examples(s))
+        self.assertEqual(set(o[0] for o in l if o[0] is not None), {'kel', 'sket', 'cket', 'nket'})
+
     def test_variants(self):
         l = list(yield_variants('sket.'))
         self.assertEqual(l, [('sket', None)])
