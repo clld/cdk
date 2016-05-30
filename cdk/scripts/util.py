@@ -163,7 +163,7 @@ DIALECT_CHUNK_PATTERN = re.compile(',\s*(?:%s)\.\s*' % '|'.join(DIALECTS.keys())
 
 LOC_PATTERN = re.compile('(?:(?:\]|\?|!|,|\s\s)\s*|^)(%s)\.,?\s+' %
                          '|'.join(string2regex(s)
-                                  for s in chain(LOCATIONS.keys(), DIALECTS.keys())))
+                                  for s in chain(LOCATIONS.keys(), DIALECTS.keys(), ['ket'])))
 
 SOURCE_PATTERN = re.compile('\s*\((?P<src>[^:\s\(\)]+):\s*(?P<pages>[^\)]+)(?:\)\s*$|\),?\s*)')
 SOURCE_MARKER = re.compile('\s*\((?P<src>[^:\s\(\)]+):\s*(?P<pages>[^\)]+)\),?\s*')
@@ -305,9 +305,8 @@ def yield_cited_examples(s):
 
         for chunk, src, pages in [chunks[i:i + 3] for i in range(0, count * 3, 3)]:
             parts = chunk.split('  ')
-            if len(parts) == 4:
-                yield None, parts[0], parts[1], None, None
-                parts = parts[2:]
+            while len(parts) % 2 == 0 and len(parts) > 2:
+                yield None, parts.pop(0), parts.pop(0), None, None
             try:
                 assert len(parts) == 2
                 yield None, parts[0], parts[1], src, pages

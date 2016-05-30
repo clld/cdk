@@ -224,6 +224,23 @@ class HeadwordTests(TestCase):
         l = list(yield_examples(s))
         self.assertEqual(set(o[0] for o in l if o[0] is not None), {'kel', 'sket', 'cket', 'nket'})
 
+        s = "kel. buŋtɛt kɛˀt sʲēlʲ bilbɛt  глупый человек плохо сделал, " \
+            "kel. buŋtɛt hīɣ ʌtna tān dɛjsɔʁɔt  дурной мужик на нас ругается, " \
+            "kel. ʌtna kɛˀt buŋtɛtsʲ  наш человек чокнутый [глупый]  " \
+            "manʲmaŋ, ə̄tn darʲij dɛˀŋ, buttɔ ə̄tn buŋtɛt dɛˀŋ  говорят, мы дураки, будто мы глупые люди (ПМБ: 261), " \
+            "haj at anʲɛŋilʲgɛt tɔˀnʲ, butta bʌˀj kʌˀ-qɔlʲɛpkaru uɣil sʲɛlʲdu, buŋtɛtdu  и не думай так, будто друг там за рекой тебя хуже, глупей (ПМБ: 230)"
+        l = list(yield_examples(s))
+        self.assertEqual(len(l), 5)
+
+        s = "bū qusʲ-t hìj dujutɔ  он чум ставить собирается,  " \
+            "bū quˀsʲ kisʲɛ̀ŋ hij-εsʲaŋ dutabak  он чум здесь ставить собирается,  " \
+            "quˀsʲ kisʲɛ́ŋ hij-εsʲaŋ daqɔˀj  он чум здесь ставить хочет  " \
+            "hij-ɛsʲaŋ quˀŋ nada qajga  чумы надо ставить на яру (ПМБ: 203)"
+        l = list(yield_examples(s))
+        #for ll in l:
+        #    print('%s | %s | %s | %s | %s' % tuple(ll))
+        self.assertEqual(len(l), 4)
+
     def test_variants(self):
         l = list(yield_variants('sket.'))
         self.assertEqual(l, [('sket', None)])
