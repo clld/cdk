@@ -44,6 +44,9 @@
             <li>
                 <i>${ex.name}</i><br/>
                 ${ex.description}
+                % if ex.language.name != 'Ket':
+                (${h.link(request, ex.language)})
+                % endif
                 % if ex.references:
                     <br/>
                     (${h.link(request, ex.references[0].source)}: ${ex.references[0].description})

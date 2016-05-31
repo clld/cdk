@@ -395,7 +395,7 @@ def load(data, reader, ket, contrib, verbs=True):
                     unit=entry,
                     unitparameter=meaning)
 
-                for k, (loc, text, rus, source, pages) in enumerate(yield_examples(description)):
+                for k, (loc, text, rus, source, pages) in enumerate(yield_examples(description.strip())):
                     example = data['Sentence'].get((text, rus, loc))
                     if example is None:
                         EXAMPLE_ID += 1

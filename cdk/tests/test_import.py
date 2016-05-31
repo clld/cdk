@@ -237,9 +237,23 @@ class HeadwordTests(TestCase):
             "quˀsʲ kisʲɛ́ŋ hij-εsʲaŋ daqɔˀj  он чум здесь ставить хочет  " \
             "hij-ɛsʲaŋ quˀŋ nada qajga  чумы надо ставить на яру (ПМБ: 203)"
         l = list(yield_examples(s))
+        self.assertEqual(len(l), 4)
+
+        s = "bak. qūsʲ ē  одно железо, " \
+            "kur. tarɛ ē  кованое [битое] железо, " \
+            "sul. áàŋ ē  горячее железо, " \
+            "sul. ē aːŋam  железо горячее, " \
+            "kel. turʲə ē aːŋsʲ  это железо горячее, " \
+            "sul. kɨlʲtɛt ē  кованое железо, " \
+            "sul. ē kɨltɛts  железо кованное, " \
+            "bak. kɔlɛtdiŋta tʌŋdiŋal, ēdiŋal ɛŋŋuŋ dεˀŋ dubbɛtin  в городе из камня, из железа дома люди делают  " \
+            "hʌtnuraŋdiŋt ē dusʲqimnʲan  в плавильнях железо выплавляли (ПМБ: 243), " \
+            "āt huːlasʲ (t)kɨlʲdavintɛt aʁatld ʌʁat ē  я железо молотком кую [бью] на наковальне (СНСС72: 126), " \
+            "pak. ɛd dūɣ  стрельба [крик железа] "
+        l = list(yield_examples(s))
         #for ll in l:
         #    print('%s | %s | %s | %s | %s' % tuple(ll))
-        self.assertEqual(len(l), 4)
+        self.assertEqual(len(l), 11)
 
     def test_variants(self):
         l = list(yield_variants('sket.'))
