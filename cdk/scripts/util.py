@@ -22,10 +22,13 @@ SOURCE_MAP = {
     'CНCC72': 'СНСС72',
     'CHCC72': 'СНСС72',
     'КС': 'КСД',
-    'АК60': 'ЛЯНС11',
+    'АК60': 'АК1',
     'K67': 'К67',
     'КТФ': 'КФТ',
     'КСб13': 'КСб',
+    ('МКД', '654'): ('МКД3', '111'),
+    ('МКД', '147'): ('МКД2', '147'),
+    ('КСб13', '74'): ('ПМБ', '238'),
 }
 
 
@@ -426,7 +429,11 @@ def load(data, reader, ket, contrib, verbs=True):
                             name=text,
                             description=rus)
                         if source:
-                            source = SOURCE_MAP.get(source, source)
+                            if (source, pages) in SOURCE_MAP:
+                                print(source, pages)
+                                source, pages = SOURCE_MAP[(source, pages)]
+                            else:
+                                source = SOURCE_MAP.get(source, source)
                             src = data['Source'].get(source)
                             if not src:
                                 print(source)
