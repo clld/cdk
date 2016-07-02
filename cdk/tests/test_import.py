@@ -9,21 +9,28 @@ class HeadwordTests(TestCase):
     def test_Headword(self):
         w = Headword('ambel <rus.>')
         self.assertEqual(w.donor, 'rus')
+
         w = Headword('anát-qodes (nket., sket. anát-qɔrεs, cket. anát-qɔdεs)')
         self.assertEqual(w.form, 'anát-qodes')
         self.assertEqual(w.dialects, [])
         self.assertIn('sket', w.variants)
+
         w = Headword('aduŋu I (nket. aruŋ, cket. aduŋu, sket. aruŋu)')
         self.assertEqual(w.disambiguation, 'I')
+
         w = Headword('albed1 (cket. alʲəbɛt) III')
         self.assertEqual(w.dialects, [])
         self.assertIn('cket', w.variants)
         self.assertEqual(w.disambiguation, '1 III')
+
         w = Headword('albed also something also else (cket. alʲəbɛt)')
         self.assertEqual(len(w.variants[None]), 2)
 
         w = Headword('estij (cket. ε(j)štij) I')
         self.assertEqual(w.variants['cket'], ['ε(j)štij'])
+
+        w = Headword('boltaq1 (nket.)')
+        self.assertEqual(w.dialects, ['nket'])
 
     def test_examples(self):
         s = "kel. kinij aqta ā  сегодня сильная жара, kel. sʲīlʲɛ ā  летом жара, kel. " \
@@ -254,6 +261,67 @@ class HeadwordTests(TestCase):
         #for ll in l:
         #    print('%s | %s | %s | %s | %s' % tuple(ll))
         self.assertEqual(len(l), 11)
+
+        s = "sul. qūsʲ asʲpulʲ  одно облако, " \
+            "sul. asʲvulʲ qusʲam  облако одно, " \
+            "sur. ulʲεsʲ aspulʲ  дождевое облако, " \
+            "el. tum aspulʲ  чёрная туча, " \
+            "kur. quŋtεt aspulʲ  грозовая туча, " \
+            "kur. ēkŋ asʲpul εsavut  грозовая туча поднимается, " \
+            "kel. āt asʲbulʲ ditɔŋ  я тучу вижу, " \
+            "sul. aspulaŋ bʌnsʲaŋ  туч нет, " \
+            "sul. asʲpulʲdiŋalʲ ulʲata  из тучи дождь идёт, " \
+            "kel. ulʲɛsʲ aspulʲ arʲɛn tɔsa qɔlʲapka aŋapta  дождевое облако над лесом висит, " \
+            "bak. hʌlatbεsʲ aspulaŋ ɔŋɔt  по небу облака идут, " \
+            "kel. asʲpulʲ bēj da-bugbit  облако ветром несёт, " \
+            "kel. qimdɨlʲ aspul da-kɔlʲdɔ  девочка на облако смотрела, " \
+            "kel. tum asʲpulʲ ʌɣa bēj da-bugbiʁɔs  чёрное облако ветер сюда несёт  " \
+            "ēkŋ qām duɣaŋgɔʁan, qat qarʲuːn, aspulʲaŋ utal ēsʲ (t)kajnamin  гроза скоро начнется, посмотрите, тучи обложили всё небо (СНСС72: 147), " \
+            "quŋlɔɣin ʌla, aksʲ ǝ̄k bǝ̄nʲ kutɔɣin ulεstu aspulʲ?  посмотрите наружу, разве вы не видите грозовую тучу? (СНСС72: 151)"
+        l = list(yield_examples(s))
+        #for ll in l:
+        #    print('%s | %s | %s | %s | %s' % tuple(ll))
+        self.assertEqual(len(l), 16)
+
+        s = "sur. ūk inεŋ  твои ногти, " \
+            "kel. qūsʲ ìn  один ноготь, " \
+            "kel. ìn qusʲam  ноготь один, " \
+            "sul. qaɣam inεŋ  пять ногтей, " \
+            "sul. ìn sintuɣam  ноготь грязный, " \
+            "kur. kεdda ìn  ноготь человека, " \
+            "kur. tabna inεŋ  когти собак, " \
+            "kur. sutaqd ìn  ноготь среднего пальца, " \
+            "kur. qɔjda inεŋ  когти медведя, " \
+            "kel. hɨˀj inεŋasʲ ùt (t)tɔɣaulʲtεt  сова схватила мышь когтями,  " \
+            "bū kɔˀp (t)kasʲɔnεm, daqɔbεtbεsʲ dεtavinʲtaŋ; kɔbda qɔbεtka qɔjda inεŋdiŋalʲ qāk tumaŋ (s)lεːdaŋ igdɔbɔn  он бурундука взял, по спине погладил; от медвежьих когтей на спине бурундука пять чёрных полос [следов] осталось (СНСС81: 57), " \
+            "inεŋ àj  небольшая сумочка из шкурок с лап соболя, выдры, росомахи [когти сумка] (К67: 117)"
+        l = list(yield_examples(s))
+        #for ll in l:
+        #    print('%s | %s | %s | %s | %s' % tuple(ll))
+        self.assertEqual(len(l), 12)
+
+        s = "kel. abcd?  efgh? kel. ijkl  mnop"
+        l = list(yield_examples(s))
+        self.assertEqual(l[0][2], 'efgh?')
+        self.assertEqual(l[1][2], 'mnop')
+
+        s = "kel. hīɣ qɔˀk duɣaraq  мужик один живёт, " \
+            "kel. bū qɔˀk kɛˀt, ariŋa duɣaraq  он один [один человек], в лесу живёт,  " \
+            "qɔˀk huˀn  одна дочь (СНСС72: 83), " \
+            "qɔksʲadaŋtɛn ɨ̄n kʌˀt  у одного (человека) двое детей (СНСС72: 83), " \
+            "qɔkdadiŋtan dɔˀŋ dɨlʲgat, kunsʲa qimdiŋtan qɔˀk dɨ̄lʲ  у одной было трое детей, у другой женщины один ребёнок (СНСС81: 40), " \
+            "qɔˀk qīm qā daigdɔʁɔn  одна баба дома осталась (СНСС72: 139), " \
+            "āt qɔˀk kɛˀt digdɔʁɔn  я одна осталась (СНСС72: 107), " \
+            "qɔˀk ɔstɨk i qɔˀk hʌmga  один кет и один эвенк (CHCC81ː 44), " \
+            "pak. qɔˀk saˀq bīk ɔksʲdaŋa da-ɛtʲditnam  другая [одна] белка соскочила на другое дерево (КФТ: 55)"
+        l = list(yield_examples(s))
+        #for ll in l:
+        #    print('%s | %s | %s | %s | %s' % tuple(ll))
+        #
+        # FIXME: incorrect parsing of
+        # qɔˀk ɔstɨk i qɔˀk hʌmga  один кет и один эвенк (CHCC81ː 44)
+        #
+        self.assertEqual(len(l), 9)
 
     def test_variants(self):
         l = list(yield_variants('sket.'))

@@ -161,7 +161,7 @@ DIALECT_MARKER_PATTERN = re.compile('(?P<name>ket|%s)(\.\s*|\.?\s+)' % '|'.join(
 
 DIALECT_CHUNK_PATTERN = re.compile(',\s*(?:%s)\.\s*' % '|'.join(DIALECTS.keys()))
 
-LOC_PATTERN = re.compile('(?:(?:\]|\?|!|,|\s\s)\s*|^)(%s)\.,?\s+' %
+LOC_PATTERN = re.compile('(?:(\]|\?|!|,|\s\s)\s*|^)(%s)\.,?\s+' %
                          '|'.join(string2regex(s)
                                   for s in chain(LOCATIONS.keys(), DIALECTS.keys(), ['ket'])))
 
@@ -252,14 +252,26 @@ class Headword(object):
 
 
 def yield_examples(s):
-    chunks = [ss.strip() for ss in LOC_PATTERN.split(s)]
+    #
+    # FIXME: we must retain the first char of LOC_PATTERN if it is !, ?, ]
+    #
+    chunks = [(ss or '').strip() for ss in LOC_PATTERN.split(s)]
+
+    for i in range(1, len(chunks), 3):
+        try:
+            sep = chunks[i].strip()
+            if sep in '!?]':
+                chunks[i - 1] += sep
+        except IndexError:
+            pass
+
     if chunks[0]:
         for res in yield_cited_examples(chunks[0]):
             yield res
 
-    local_examples = [chunks[i:i + 2] for i in range(1, len(chunks), 2)]
+    local_examples = [chunks[i:i + 3] for i in range(1, len(chunks), 3)]
 
-    for i, (dialect, chunk) in enumerate(local_examples):
+    for i, (sep, dialect, chunk) in enumerate(local_examples):
         parts = chunk.split('  ', 2)
         if len(parts) == 1:
             PROBLEMS.append(s)
@@ -276,9 +288,14 @@ def yield_examples(s):
             rus = parts[1]
         text = parts[0]
         match = DIALECT_MARKER_PATTERN.match(text)
-        if match:
+        dialects = []
+        while match:
             text = text[match.end():].strip()
-            yield match.group('name'), text, rus, src, pages
+            dialects.append(match.group('name'))
+            match = DIALECT_MARKER_PATTERN.match(text)
+
+        for d in dialects:
+            yield d, text, rus, src, pages
         yield dialect, text, rus, src, pages
         if len(parts) > 2:
             for res in yield_cited_examples('  '.join(parts[2:])):
@@ -346,6 +363,7 @@ def load(data, reader, ket, contrib, verbs=True):
             donor=headword.donor,
             disambiguation=headword.disambiguation,
             pos=pos,
+            variant=False,
             aspect=aspect_or_plural if verbs else None,
             plural=None if verbs else aspect_or_plural,)
 
@@ -358,6 +376,7 @@ def load(data, reader, ket, contrib, verbs=True):
         else:
             entries.append(get_entry(name=headword.form, language=ket, **kw))
 
+        kw['variant'] = True
         for dialect, forms in headword.variants.items():
             for form in forms:
                 entries.append(get_entry(

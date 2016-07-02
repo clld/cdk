@@ -38,10 +38,10 @@ class CounterpartExample(Base):
 class Entry(CustomModelMixin, Unit):
     pk = Column(Integer, ForeignKey('unit.pk'), primary_key=True)
 
+    variant = Column(Boolean, nullable=False)
     donor = Column(Unicode)
     disambiguation = Column(Unicode)
     pos = Column(Unicode)
-    variant = Column(Boolean, default=False)
     aspect = Column(Unicode)
     plural = Column(Unicode)
 

@@ -58,7 +58,10 @@ class Examples(Sentences):
 class WordCol(LinkCol):
     def get_attrs(self, item):
         item = self.get_obj(item)
-        return {'label': HTML.span(util.form(item.name), ' ', HTML.sup(item.disambiguation))}
+        form = util.form(item.name)
+        if item.variant:
+            form = HTML.i(form)
+        return {'label': HTML.span(form, ' ', HTML.sup(item.disambiguation))}
 
 
 class DialectCol(LinkCol):
@@ -69,11 +72,31 @@ class DialectCol(LinkCol):
         return common.Language.pk
 
 
+class VariantCol(Col):
+    def __init__(self, dt, name, **kw):
+        kw['sDescription'] = 'If "yes" the word is a dialectal variant.'
+        kw['sFilter'] = '2'
+        kw['model_col'] = Entry.variant
+        kw['choices'] = [('1', 'yes'), ('2', 'no')]
+        Col.__init__(self, dt, name, **kw)
+
+    def search(self, qs):
+        if qs == '1':
+            return Entry.variant == True
+        if qs == '2':
+            return Entry.variant == False
+
+    def format(self, item):
+        item = self.get_obj(item)
+        return 'yes' if item.variant else 'no'
+
+
 class Entries(Units):
     def col_defs(self):
         return [
             DetailsRowLinkCol(self, '#'),
             WordCol(self, 'name'),
+            VariantCol(self, 'variant'),
             Col(self, 'pos', model_col=Entry.pos, choices=get_distinct_values(Entry.pos)),
             Col(self, 'aspect', model_col=Entry.aspect, choices=get_distinct_values(Entry.aspect)),
             Col(self, 'plural', model_col=Entry.plural, choices=get_distinct_values(Entry.plural)),
@@ -108,6 +131,9 @@ class Counterparts(Unitvalues):
 
         return query
 
+    def toolbar(self):
+        return self._toolbar.render(no_js=True)
+
     def col_defs(self):
         return [
             DetailsRowLinkCol(self, '#'),
@@ -116,6 +142,7 @@ class Counterparts(Unitvalues):
                 'form',
                 get_obj=lambda i: i.unit,
                 model_col=common.Unit.name),
+            VariantCol(self, 'variant', get_object=lambda u: u.unit),
             Col(
                 self,
                 'english',

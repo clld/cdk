@@ -26,7 +26,7 @@
     </div>
 </%def>
 
-<h2>${u.form(ctx.name)} <sup>${ctx.disambiguation}</sup></h2>
+<h2>${'Variant' if ctx.variant else 'Headword'} ${u.form(ctx.name)} <sup>${ctx.disambiguation}</sup></h2>
 
 <p>
     <i>${ctx.pos}</i>, <i>${ctx.aspect or ctx.plural}</i>
