@@ -64,12 +64,16 @@ class WordCol(LinkCol):
         return {'label': HTML.span(form, ' ', HTML.sup(item.disambiguation))}
 
 
-class DialectCol(LinkCol):
+class DialectCol(Col):
     def search(self, qs):
         return common.Language.id == qs
 
     def order(self):
         return common.Language.pk
+
+    def format(self, item):
+        item = self.get_obj(item)
+        return item.name
 
 
 class VariantCol(Col):
@@ -94,7 +98,6 @@ class VariantCol(Col):
 class Entries(Units):
     def col_defs(self):
         return [
-            DetailsRowLinkCol(self, '#'),
             WordCol(self, 'name'),
             VariantCol(self, 'variant'),
             Col(self, 'pos', model_col=Entry.pos, choices=get_distinct_values(Entry.pos)),
@@ -104,7 +107,7 @@ class Entries(Units):
             DialectCol(
                 self,
                 'variety',
-                get_object=lambda u: u.language,
+                model_col=common.Language.name,
                 choices=[(l.id, l.name) for l in DBSession.query(common.Language)]),
         ]
 

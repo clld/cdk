@@ -6,7 +6,7 @@
     <div class="well">
         <h4>Language</h4>
         <p>
-            ${h.link(request, ctx.language)}
+            ${ctx.language}
         </p>
         % if ctx.variants:
             <h4>Variants</h4>
@@ -45,7 +45,7 @@
                 <i>${ex.name}</i><br/>
                 ${ex.description}
                 % if ex.language.name != 'Ket':
-                (${h.link(request, ex.language)})
+                (${ex.language})
                 % endif
                 % if ex.references:
                     <br/>
