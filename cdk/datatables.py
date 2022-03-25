@@ -1,4 +1,4 @@
-from sqlalchemy.orm import joinedload, joinedload_all
+from sqlalchemy.orm import joinedload
 
 from clld.web.datatables.base import Col, LinkCol, DetailsRowLinkCol
 from clld.web.datatables.unit import Units
@@ -42,7 +42,7 @@ class Examples(Sentences):
         query = query.outerjoin(common.Sentence.references, common.Source)
         query = query.options(
             joinedload(common.Sentence.examples),
-            joinedload_all(common.Sentence.references, common.SentenceReference.source))
+            joinedload(common.Sentence.references).joinedload(common.SentenceReference.source))
         return query.distinct()
 
     def col_defs(self):
@@ -119,7 +119,7 @@ class Counterparts(Unitvalues):
             .join(common.Unit.language) \
             .join(common.UnitParameter) \
             .options(
-                joinedload_all(common.UnitValue.unit, common.Unit.language),
+                joinedload(common.UnitValue.unit).joinedload(common.Unit.language),
                 joinedload(common.UnitValue.unitparameter))
 
         if self.unit:
