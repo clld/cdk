@@ -1,10 +1,6 @@
 from setuptools import setup, find_packages
 
 
-requires = [
-    'clldmpg>=1.0.0',
-]
-
 tests_require = [
     'WebTest >= 1.3.1',  # py3 compat
     'mock',
@@ -29,7 +25,10 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=requires,
+    install_requires=[
+        'clld>=9.2.2',
+        'clldmpg>=4.3',
+    ],
     tests_require=tests_require,
     test_suite="cdk",
     entry_points="""\
